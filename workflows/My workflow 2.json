@@ -1,0 +1,185 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5ca76d7a-9810-4c26-8648-fe6dbe7a109b",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.forismatic.com/api/1.0/?method=getQuote&format=json&lang=ru",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6ac3cb4e-df00-41cb-a068-399f0bae1456",
+      "name": "HTTP Request",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "483eb19f-3f2e-4f46-9adb-b3076d52003a",
+              "name": "quoteAuthor",
+              "value": "={{ $json.quoteAuthor }}",
+              "type": "string"
+            },
+            {
+              "id": "131d9b8e-cbbf-4c34-8f8f-dd211d487a84",
+              "name": "quoteText",
+              "value": "={{ $json.quoteText }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "745a8552-ed90-4c29-8bc4-ae84795026b6",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "danchenko57@gmail.com",
+        "subject": "n8n",
+        "emailType": "text",
+        "message": "=Новая цитата от forismatic.com:\n\n\"{{ $json.quoteText }}\"\n\nАвтор: {{ $json.quoteAuthor }}\nСсылка: {{ $json.quoteLink }}\n\nС уважением,\nВаш n8n workflow",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "40e27162-3d1c-4eec-9345-8f02967b9398",
+      "name": "Send a message",
+      "webhookId": "2cdafd2a-b713-4b78-b4ea-f09ac1451293",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h4MRgeGYdVxbHJaO",
+          "name": "Gmail account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b1208302-9983-4e05-835a-0504d80cd874",
+              "leftValue": "={{ ($json.responseCode && $json.responseCode < 400) && $json.data && $json.data.length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        16
+      ],
+      "id": "1e166e1c-e29c-46cd-9118-a14a70903b79",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "761f3599-beee-4da7-9b9c-8fbbe62aa7c9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
+  },
+  "id": "4zmnhckcZAxDHXeJNInzr",
+  "tags": [
+    {
+      "name": "http request + send mess",
+      "id": "xwttHNbgYeQjCan3",
+      "updatedAt": "2026-01-23T11:47:25.723Z",
+      "createdAt": "2026-01-23T11:47:25.723Z"
+    }
+  ]
+}

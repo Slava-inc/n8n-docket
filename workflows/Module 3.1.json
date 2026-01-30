@@ -1,0 +1,321 @@
+{
+  "name": "Module 3.1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "orders",
+        "responseMode": "lastNode",
+        "responseData": "allEntries",
+        "options": {}
+      },
+      "id": "120cc02d-6248-4f9f-a93f-28d2b62fc77f",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -16
+      ],
+      "webhookId": "example-webhook-id-orders"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "condition-1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "VIP"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "condition-2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Regular"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "condition-3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Ignored"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "524136ac-0f69-4ea8-9d47-c39022052d10",
+      "name": "Categorize Orders",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        304,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "1512571026",
+        "text": "=Новый VIP заказ: {{ $json.orderId }}\nКлиент: {{ $json.customerName }}\nСумма: {{ $json.amount }} руб.\nКатегория: {{ $json.category }}",
+        "additionalFields": {}
+      },
+      "id": "3d4d1cfb-b4fb-4ef6-bb94-a04434d7a061",
+      "name": "Send VIP Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -160
+      ],
+      "webhookId": "72bd0cd0-3858-4526-864c-3e31761d0c95",
+      "credentials": {
+        "telegramApi": {
+          "id": "jskKNTx4MuBNweYO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1512571026",
+        "text": "=Новый заказ: {{ $json.orderId }}\nКлиент: {{ $json.customerName }}\nСумма: {{ $json.amount }} руб.\n Категория: {{ $json.category }}",
+        "additionalFields": {}
+      },
+      "id": "28a8f8d2-12ae-404b-97a4-c554655a130b",
+      "name": "Send Regular Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        560,
+        32
+      ],
+      "webhookId": "12d913ed-3782-40ba-b229-b1559f5e365d",
+      "credentials": {
+        "telegramApi": {
+          "id": "jskKNTx4MuBNweYO",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "ae6e89fb-035a-4365-a335-a75b6aaea83f",
+      "name": "Ignore Order",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        560,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": [
+            {},
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "278562e3-c9e6-4518-8329-97d97974738a",
+      "name": "Merge Orders",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        832,
+        -64
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Add order category\nconst item = $input.first().json;\n\nif (item.amount > 1000) {\n  item.category = 'VIP';\n} else if (item.amount >= 500) {\n  item.category = 'Regular';\n} else {\n  item.category = 'Ignored';\n}\n\nreturn { json: item };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -16
+      ],
+      "id": "63c8e941-d8b0-43c1-a638-dca0feab7eaa",
+      "name": "Add category"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare data for Google Sheets\nconst items = $input.all();\n\nconst processed = items.map(item => ({\n  orderId: item.json.orderId,\n  customerName: item.json.customerName,\n  amount: item.json.amount,\n  category: item.json.category,\n  processedAt: new Date().toISOString()\n}));\n\nreturn processed;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        -64
+      ],
+      "id": "df8abba0-8920-4bc3-8a7d-6890a015ccad",
+      "name": "Prepare for Sheets"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Add category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Categorize Orders": {
+      "main": [
+        [
+          {
+            "node": "Send VIP Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Regular Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send VIP Notification": {
+      "main": [
+        [
+          {
+            "node": "Merge Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Regular Notification": {
+      "main": [
+        [
+          {
+            "node": "Merge Orders",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Orders": {
+      "main": [
+        [
+          {
+            "node": "Prepare for Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add category": {
+      "main": [
+        [
+          {
+            "node": "Categorize Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare for Sheets": {
+      "main": [
+        []
+      ]
+    },
+    "Ignore Order": {
+      "main": [
+        [
+          {
+            "node": "Merge Orders",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "ddb15be7-6998-485e-80c2-22913a28aba0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
+  },
+  "id": "_ZCyVnsgzIWEYq3x9LFpc",
+  "tags": []
+}
