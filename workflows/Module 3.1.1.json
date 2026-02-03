@@ -1,5 +1,5 @@
 {
-  "name": "Module 3.1",
+  "name": "Module 3.1.1",
   "nodes": [
     {
       "parameters": {
@@ -9,15 +9,28 @@
         "responseData": "allEntries",
         "options": {}
       },
-      "id": "120cc02d-6248-4f9f-a93f-28d2b62fc77f",
+      "id": "b3be6248-7266-4a33-9f7b-f3c2e1768417",
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
       "position": [
-        -400,
-        -16
+        2544,
+        2224
       ],
       "webhookId": "example-webhook-id-orders"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Add order category\nconst item = $input.first().json;\n\n// Извлекаем данные из item.body, если есть\nconst data = item.body || item;\n\n// Приводим amount к числу\nconst amount = Number(data.amount);\n\nif (amount > 1000) {\n  data.category = 'VIP';\n} else if (amount >= 500) {\n  data.category = 'Regular';\n} else {\n  data.category = 'Ignored';\n}\n\n// Возвращаем обновлённые данные\nreturn { json: data };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        2224
+      ],
+      "id": "5802d989-17c3-4488-a292-476023d07ee2",
+      "name": "Add category"
     },
     {
       "parameters": {
@@ -27,7 +40,7 @@
               "conditions": {
                 "options": {
                   "caseSensitive": true,
-                  "leftValue": "",
+                  "leftValue": " ",
                   "typeValidation": "strict",
                   "version": 1
                 },
@@ -50,7 +63,7 @@
               "conditions": {
                 "options": {
                   "caseSensitive": true,
-                  "leftValue": "",
+                  "leftValue": " ",
                   "typeValidation": "strict",
                   "version": 1
                 },
@@ -73,7 +86,7 @@
               "conditions": {
                 "options": {
                   "caseSensitive": true,
-                  "leftValue": "",
+                  "leftValue": " ",
                   "typeValidation": "strict",
                   "version": 1
                 },
@@ -96,13 +109,13 @@
         },
         "options": {}
       },
-      "id": "524136ac-0f69-4ea8-9d47-c39022052d10",
+      "id": "b5a0955f-9967-4419-afa2-e9034c83c3b1",
       "name": "Categorize Orders",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3,
       "position": [
-        304,
-        32
+        3248,
+        2272
       ]
     },
     {
@@ -111,13 +124,13 @@
         "text": "=Новый VIP заказ: {{ $json.orderId }}\nКлиент: {{ $json.customerName }}\nСумма: {{ $json.amount }} руб.\nКатегория: {{ $json.category }}",
         "additionalFields": {}
       },
-      "id": "3d4d1cfb-b4fb-4ef6-bb94-a04434d7a061",
+      "id": "02273fdf-9cfb-4dbd-9488-16688becb6a1",
       "name": "Send VIP Notification",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        560,
-        -160
+        3504,
+        2080
       ],
       "webhookId": "72bd0cd0-3858-4526-864c-3e31761d0c95",
       "credentials": {
@@ -130,16 +143,16 @@
     {
       "parameters": {
         "chatId": "1512571026",
-        "text": "=Новый заказ: {{ $json.orderId }}\nКлиент: {{ $json.customerName }}\nСумма: {{ $json.amount }} руб.\n Категория: {{ $json.category }}",
+        "text": "=Новый заказ: {{ $json.orderId }}\nКлиент: {{ $json.customerName }}\nСумма: {{ $json.amount }} руб.\nКатегория: {{ $json.category }}",
         "additionalFields": {}
       },
-      "id": "28a8f8d2-12ae-404b-97a4-c554655a130b",
+      "id": "65debb06-29ca-4ddc-9ef9-9aa39fcec1ae",
       "name": "Send Regular Notification",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1,
       "position": [
-        560,
-        32
+        3504,
+        2272
       ],
       "webhookId": "12d913ed-3782-40ba-b229-b1559f5e365d",
       "credentials": {
@@ -151,27 +164,14 @@
     },
     {
       "parameters": {},
-      "id": "ae6e89fb-035a-4365-a335-a75b6aaea83f",
+      "id": "a83b6db8-a57c-446c-b783-b8e58a238afc",
       "name": "Ignore Order",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
       "position": [
-        560,
-        240
+        3504,
+        2480
       ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Add order category\nconst item = $input.first().json;\n\nif (item.amount > 1000) {\n  item.category = 'VIP';\n} else if (item.amount >= 500) {\n  item.category = 'Regular';\n} else {\n  item.category = 'Ignored';\n}\n\nreturn { json: item };"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        -144,
-        -16
-      ],
-      "id": "63c8e941-d8b0-43c1-a638-dca0feab7eaa",
-      "name": "Add category"
     },
     {
       "parameters": {
@@ -180,25 +180,122 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1072,
-        -64
+        3072,
+        2560
       ],
-      "id": "df8abba0-8920-4bc3-8a7d-6890a015ccad",
+      "id": "a91a959e-4bd6-41f1-8a27-71dd86fe8e2b",
       "name": "Prepare for Sheets"
     },
     {
       "parameters": {
-        "mode": "combine",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1t2ndlWb65IGqT0SOD38tirvVjNr8on4FjHBv9-NkLuU",
+          "mode": ""
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Лист1"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "orderID",
+              "displayName": "orderID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "customerName",
+              "displayName": "customerName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "processedAt",
+              "displayName": "processedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false,
+          "values": [
+            {
+              "columnName": "orderId",
+              "columnValue": "={{ $json.orderId }}"
+            },
+            {
+              "columnName": "customerName",
+              "columnValue": "={{ $json.customerName }}"
+            },
+            {
+              "columnName": "amount",
+              "columnValue": "={{ $json.amount }}"
+            },
+            {
+              "columnName": "category",
+              "columnValue": "={{ $json.category }}"
+            },
+            {
+              "columnName": "processedAt",
+              "columnValue": "={{ $json.processedAt }}"
+            }
+          ]
+        },
         "options": {}
       },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.2,
+      "id": "313adc08-30ac-4d74-bf80-9555b8428674",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
       "position": [
-        768,
-        -160
+        3312,
+        2560
       ],
-      "id": "a5245e2a-cd93-4867-bce8-7037b8338ca9",
-      "name": "Merge"
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2DXWDr5IbVF6MtGs",
+          "name": "Google Sheets account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -208,6 +305,22 @@
         [
           {
             "node": "Add category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add category": {
+      "main": [
+        [
+          {
+            "node": "Categorize Orders",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare for Sheets",
             "type": "main",
             "index": 0
           }
@@ -239,54 +352,11 @@
         ]
       ]
     },
-    "Send VIP Notification": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Send Regular Notification": {
-      "main": [
-        [
-          {
-            "node": "Merge",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Add category": {
-      "main": [
-        [
-          {
-            "node": "Categorize Orders",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Prepare for Sheets": {
       "main": [
-        []
-      ]
-    },
-    "Ignore Order": {
-      "main": [
-        []
-      ]
-    },
-    "Merge": {
-      "main": [
         [
           {
-            "node": "Prepare for Sheets",
+            "node": "Google Sheets",
             "type": "main",
             "index": 0
           }
@@ -299,11 +369,11 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "8af1dcf4-c9b5-4418-8656-9cd2e2ad3111",
+  "versionId": "9a36e967-ddd6-4080-84cb-60347c15f9a4",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
   },
-  "id": "_ZCyVnsgzIWEYq3x9LFpc",
+  "id": "XWerAKvLXxCjIleNVCNOJ",
   "tags": []
 }
