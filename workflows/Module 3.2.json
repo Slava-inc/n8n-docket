@@ -1,0 +1,173 @@
+{
+  "name": "Module 3.2",
+  "nodes": [
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ACEPJQ3JT",
+          "mode": "id"
+        },
+        "text": "=📌 Новый лид! Имя: {{ $('Append row in sheet').first().json['name'] }} Email: {{ $('Append row in sheet').first().json['email'] }} Телефон: {{ $('Append row in sheet').first().json['phone'] }} Источник: {{ $('Append row in sheet').first().json['source'] }}",
+        "otherOptions": {}
+      },
+      "id": "d8d69005-c882-4bed-856d-834395dccb39",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        944,
+        176
+      ],
+      "webhookId": "995a516a-c162-4a5f-9f14-6b9b95e4d2d1",
+      "credentials": {
+        "slackApi": {
+          "id": "FLIiBI8pDitfSV5V",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-webhook",
+        "options": {}
+      },
+      "id": "a49d2473-3037-4b21-9ea6-5d948dabbf45",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        512,
+        176
+      ],
+      "webhookId": "auto-generated-by-n8n"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15JmuXqeJsge4IM3PF9d8moyxV-SAjBQv0QVxXGYgYko",
+          "mode": "list",
+          "cachedResultName": "Лиды",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15JmuXqeJsge4IM3PF9d8moyxV-SAjBQv0QVxXGYgYko/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Лист1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/15JmuXqeJsge4IM3PF9d8moyxV-SAjBQv0QVxXGYgYko/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "= {{$json.body.name || 'Unknown'}}",
+            "email": "={{$json.body.email || ''}}",
+            "phone": "={{$json.body.phone || ''}}",
+            "source": "= {{$json.body.source || 'Manual'}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        752,
+        176
+      ],
+      "id": "ceb93d4e-beb1-4cb6-8187-6df7041e41d8",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u4MrEG8A6EDt17uK",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "4903df6a-331b-4337-9fc1-96deb7c37214",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
+  },
+  "id": "mx3ykHhgwA0U-B158rBCu",
+  "tags": []
+}
