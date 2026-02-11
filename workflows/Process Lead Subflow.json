@@ -1,0 +1,191 @@
+{
+  "name": "Process Lead Subflow",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "15JmuXqeJsge4IM3PF9d8moyxV-SAjBQv0QVxXGYgYko",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "= {{$json.body.name || 'Unknown'}}",
+            "email": "={{$json.body.email || ''}}",
+            "phone": "={{$json.body.phone || ''}}",
+            "source": "= {{$json.body.source || 'Manual'}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        320,
+        0
+      ],
+      "id": "2950c717-2b91-44b0-8014-47825ddb62c3",
+      "name": "Google Sheets: Append Lead",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "u4MrEG8A6EDt17uK",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ACEPJQ3JT",
+          "mode": "id"
+        },
+        "text": "=✅ Под-воркфлоу: Лид '{{ $json.name }}' обработан",
+        "otherOptions": {}
+      },
+      "id": "c9b60733-17b1-4480-9cd8-f1dc9f4ff401",
+      "name": "Slack: Subflow Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        560,
+        0
+      ],
+      "webhookId": "10baa44f-4a1e-4a9a-9210-04180614707e",
+      "credentials": {
+        "slackApi": {
+          "id": "FLIiBI8pDitfSV5V",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "=process-lead-subflow",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        112,
+        0
+      ],
+      "id": "2b7bc765-3b3e-49fd-97cb-b9ca2eadeaa6",
+      "name": "Webhook",
+      "webhookId": "8ef17883-31af-4319-bfca-feaece03695a"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true,\n  \"message\": \"Lead proccessed\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        768,
+        0
+      ],
+      "id": "4a7af41a-dc63-4eb7-b304-b6e83e3d9ba3",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets: Append Lead": {
+      "main": [
+        [
+          {
+            "node": "Slack: Subflow Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets: Append Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Subflow Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "6156f450-026d-4933-b703-5b43745cd8f5",
+  "meta": {
+    "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
+  },
+  "id": "5yD_bMkBxKIdreMS57rS0",
+  "tags": []
+}

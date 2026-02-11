@@ -1,0 +1,224 @@
+{
+  "name": "Module 3.4 (Main with Webhook Subflow)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-webhook",
+        "options": {}
+      },
+      "id": "5583da5c-7cb6-40e4-a5c7-6e41b9cad4dd",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        1200
+      ],
+      "webhookId": "adc97251-8f1e-4db4-8ed7-e5bc75f9d27d"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "leadData",
+              "value": "={{$json.body}}"
+            },
+            {
+              "name": "subflowWebhookUrl",
+              "value": "={{`http://localhost:5678/webhook/process-lead-subflow`}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0ad202c4-36c7-4319-90eb-831e1243032b",
+      "name": "Set: Lead Data & URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "={{$json.subflowWebhookUrl}}",
+        "allowUnauthorizedCerts": true,
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "name",
+              "value": "=  {{$json.leadData.name}}"
+            },
+            {
+              "name": "phone",
+              "value": "={{$json.leadData.phone}}"
+            },
+            {
+              "name": "source",
+              "value": "={{$json.leadData.source}}"
+            },
+            {
+              "name": "email",
+              "value": "={{$json.leadData.email}}"
+            }
+          ]
+        }
+      },
+      "id": "8c6c8ec8-5e57-4b4c-a0fc-cfd4c896eed3",
+      "name": "HTTP Request: Call Subflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        1200
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.success == true}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "78481e68-c910-4a48-8599-f8cdb2e3a4ff",
+      "name": "IF: Subflow Success Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1680,
+        1200
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ACEPJQ3JT",
+          "mode": "list",
+          "cachedResultName": "leads-test"
+        },
+        "text": "= Главный воркфлоу: Лид успешно обработан \\nЛид: {{ $('Set: Lead Data & URL').first().json.leadData?.name || 'Нет данных' }}\n",
+        "otherOptions": {}
+      },
+      "id": "f78b557d-94aa-4800-8681-d8cb08da2758",
+      "name": "Slack: Main Success",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        1104
+      ],
+      "webhookId": "3c576031-4f27-4910-93da-abd45574cfcc",
+      "credentials": {
+        "slackApi": {
+          "id": "FLIiBI8pDitfSV5V",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ACEPJQ3JT",
+          "mode": "id"
+        },
+        "text": "=\"⚠️ Главный воркфлоу: Ошибка вызова под-воркфлоу!\\nЛид: {{ $('Set: Lead Data & URL').first().json.leadData?.name || 'Нет данных' }}\\nОшибка: {{ $json.error?.message || $json.message || 'Неизвестная ошибка' }}\\nURL: {{ $('Set: Lead Data & URL').first().json.subflowWebhookUrl || 'Нет URL' }}\"",
+        "otherOptions": {}
+      },
+      "id": "1769bc15-de22-4137-8bf0-0deafc9135eb",
+      "name": "Slack: Main Error",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        1312
+      ],
+      "webhookId": "3bf51d1e-a1f4-4357-9038-59434c35b5e0",
+      "credentials": {
+        "slackApi": {
+          "id": "FLIiBI8pDitfSV5V",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set: Lead Data & URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set: Lead Data & URL": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request: Call Subflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request: Call Subflow": {
+      "main": [
+        [
+          {
+            "node": "IF: Subflow Success Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Subflow Success Check": {
+      "main": [
+        [
+          {
+            "node": "Slack: Main Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Main Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "5bde5e70-617e-45b7-944f-ac1b56bcd736",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
+  },
+  "id": "mx3ykHhgwA0U-B158rBCu",
+  "tags": []
+}
