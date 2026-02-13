@@ -1,0 +1,25 @@
+{
+  "name": "n8n-nodes-my-awesome-node",
+  "version": "0.1.0",
+  "description": "Мои кастомные ноды для n8n",
+  "author": {
+    "name": "Vladimir Danchenko",
+    "email": "v.danchenko@example.com"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "nodes": [
+      "dist/nodes/MyAwesomeNode/MyAwesomeNode.node.js"
+    ]
+  },
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.0",
+    "typescript": "4.9.5",
+    "n8n-workflow": "~1.44.0"
+  }
+}

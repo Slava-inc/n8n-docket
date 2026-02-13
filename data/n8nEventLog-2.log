@@ -1,4 +1,0 @@
-{"__type":"$$EventMessageAudit","id":"657822e3-9daa-4337-9c3b-76c128a5b235","ts":"2026-02-05T09:01:47.751-05:00","eventName":"n8n.audit.user.login.failed","message":"n8n.audit.user.login.failed","payload":{"authenticationMethod":"email","userEmail":"danchenko57@gmail.com","reason":"wrong credentials"}}
-{"__type":"$$EventMessageConfirm","confirm":"657822e3-9daa-4337-9c3b-76c128a5b235","ts":"2026-02-05T09:01:47.766-05:00","source":{"id":"0","name":"eventBus"}}
-{"__type":"$$EventMessageAudit","id":"e3bd3b2e-8eaa-47ae-9cbf-6aef734ce9e7","ts":"2026-02-05T09:02:34.508-05:00","eventName":"n8n.audit.user.login.failed","message":"n8n.audit.user.login.failed","payload":{"authenticationMethod":"email","userEmail":"danchenko57@gmail.com","reason":"wrong credentials"}}
-{"__type":"$$EventMessageConfirm","confirm":"e3bd3b2e-8eaa-47ae-9cbf-6aef734ce9e7","ts":"2026-02-05T09:02:34.508-05:00","source":{"id":"0","name":"eventBus"}}

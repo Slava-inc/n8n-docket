@@ -10,8 +10,12 @@ services:
       - N8N_BASIC_AUTH_USER=admin
       - N8N_BASIC_AUTH_PASSWORD=password
       - N8N_WEBHOOK_URL_ALLOW_LIST=http://localhost:5678,https://localhost:5678    
+      - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom-nodes
+      - NODE_ENV=development
+      - EXECUTIONS_DATA_PRUNE=false      
     volumes:
       - ./data:/home/node/.n8n
       - ./files:/home/node/.n8n/files
+      - ./custom-nodes:/home/node/.n8n/custom-nodes
     restart: unless-stopped
    
