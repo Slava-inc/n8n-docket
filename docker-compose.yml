@@ -18,4 +18,3 @@ services:
       - ./files:/home/node/.n8n/files
       - ./custom-nodes:/home/node/.n8n/custom-nodes
     restart: unless-stopped
-   
