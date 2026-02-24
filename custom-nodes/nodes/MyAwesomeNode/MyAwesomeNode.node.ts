@@ -25,6 +25,20 @@ export class MyAwesomeNode implements INodeType {
 				default: 'Привет, n8n!',
 				description: 'Текст который будет выведен',
 			},
+			{
+				displayName: 'Громкость',
+				name: 'volume',
+				type: 'number',
+				default: 1,
+				description: 'Сколько раз повторить',
+			},
+			{
+				displayName: 'Верхний регистр',
+				name: 'uppercase',
+				type: 'boolean',
+				default: false,
+				description: 'Преобразовать в верхний регистр',
+			}			
 		],
 	};
 
@@ -40,6 +54,7 @@ export class MyAwesomeNode implements INodeType {
 					result: `${greeting} ✅ обработано!`,
 					timestamp: new Date().toISOString(),
 				},
+				
 			});
 		}
 
