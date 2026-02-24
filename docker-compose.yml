@@ -97,14 +97,4 @@ services:
     image: redis:7-alpine
     container_name: n8n-redis
     restart: unless-stopped
-    networks:
-      - n8n-networks  # ИСПРАВЛЕНО: было n8n-network
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
    

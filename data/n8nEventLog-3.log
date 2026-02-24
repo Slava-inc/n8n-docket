@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {"__type":"$$EventMessageAudit","id":"7ba65157-94f2-4695-a9bb-ec860f1634c7","ts":"2026-02-13T08:15:39.317-05:00","eventName":"n8n.audit.workflow.updated","message":"n8n.audit.workflow.updated","payload":{"userId":"c35fb34b-a2a8-4a9d-b01e-85bc0b8b53c6","_email":"danchenko57@gmail.com","_firstName":"Danchenko","_lastName":"Vyacheslav","globalRole":"global:owner","workflowId":"HoVsHoUAJYgsf_AvES2vX","workflowName":"My workflow 3"}}
 {"__type":"$$EventMessageConfirm","confirm":"7ba65157-94f2-4695-a9bb-ec860f1634c7","ts":"2026-02-13T08:15:39.317-05:00","source":{"id":"0","name":"eventBus"}}
 {"__type":"$$EventMessageWorkflow","id":"59253260-df6b-440b-ae8d-efed84928732","ts":"2026-02-13T08:15:54.555-05:00","eventName":"n8n.workflow.started","message":"n8n.workflow.started","payload":{"executionId":"228","workflowId":"HoVsHoUAJYgsf_AvES2vX","isManual":false,"workflowName":"My workflow 3"}}
@@ -12,3 +13,5 @@
 {"__type":"$$EventMessageConfirm","confirm":"9605c90d-4bff-4cd6-a5f7-eaaced6538da","ts":"2026-02-13T08:15:54.573-05:00","source":{"id":"0","name":"eventBus"}}
 {"__type":"$$EventMessageWorkflow","id":"2c897bb7-85d2-484d-9dfb-ef1ce8c3f4d8","ts":"2026-02-13T08:15:54.578-05:00","eventName":"n8n.workflow.success","message":"n8n.workflow.success","payload":{"userId":"c35fb34b-a2a8-4a9d-b01e-85bc0b8b53c6","executionId":"228","success":true,"isManual":true,"workflowId":"HoVsHoUAJYgsf_AvES2vX","workflowName":"My workflow 3"}}
 {"__type":"$$EventMessageConfirm","confirm":"2c897bb7-85d2-484d-9dfb-ef1ce8c3f4d8","ts":"2026-02-13T08:15:54.579-05:00","source":{"id":"0","name":"eventBus"}}
+=======
+>>>>>>> f3715850f0bd206fe7c12f63ee625ad70e4ff91b
