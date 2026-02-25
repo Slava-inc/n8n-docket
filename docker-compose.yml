@@ -1,5 +1,3 @@
-version: '3.8'
-
 # СЕТЬ: исправлено название (было network:, стало networks:)
 networks:
   n8n-networks:  # название должно совпадать во всем файле
@@ -57,6 +55,14 @@ services:
       - N8N_METRICS=true
       - N8N_VERSION_NOTIFICATIONS_ENABLED=false
       - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678}
+        # Отключаем предупреждение о Python
+      - EXTERNAL_RUNNER_MODE=external
+      
+      # Включаем оффлоад ручных выполнений
+      - N8N_OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true
+      
+      # Миграция storage для будущих версий
+      - N8N_MIGRATE_FS_STORAGE_PATH=true
     volumes:
       - ./data:/home/node/.n8n
       - ./files:/home/node/.n8n/files
@@ -97,4 +103,16 @@ services:
     image: redis:7-alpine
     container_name: n8n-redis
     restart: unless-stopped
-   
+    networks:
+          - n8n-networks
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    # ДОБАВЛЕН healthcheck для Redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "6379:6379"  # опционально, если нужно подключаться к Redis извне   

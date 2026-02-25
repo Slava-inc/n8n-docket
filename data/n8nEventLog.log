@@ -1,5 +1,0 @@
-<<<<<<< HEAD
-=======
-{"__type":"$$EventMessageAudit","id":"5e3af591-1ac2-4ec8-81c7-3c079221e666","ts":"2026-02-23T00:24:00.227-05:00","eventName":"n8n.audit.user.login.success","message":"n8n.audit.user.login.success","payload":{"userId":"c35fb34b-a2a8-4a9d-b01e-85bc0b8b53c6","_email":"danchenko57@gmail.com","_firstName":"Danchenko","_lastName":"Vyacheslav","globalRole":"global:owner","authenticationMethod":"email"}}
-{"__type":"$$EventMessageConfirm","confirm":"5e3af591-1ac2-4ec8-81c7-3c079221e666","ts":"2026-02-23T00:24:00.228-05:00","source":{"id":"0","name":"eventBus"}}
->>>>>>> f3715850f0bd206fe7c12f63ee625ad70e4ff91b
