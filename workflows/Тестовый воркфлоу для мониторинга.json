@@ -1,0 +1,87 @@
+{
+  "name": "Тестовый воркфлоу для мониторинга",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn [\n  {\n    json: {\n      message: \"Привет от тестового воркфлоу!\",\n      timestamp: new Date().toISOString(),\n      randomNumber: Math.floor(Math.random() * 100)\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "92b239e0-65f5-4a1a-ab36-1980f807128c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Этот код вызовет ошибку!\nconst input = $input.first().json;\n// Пытаемся обратиться к несуществующему свойству\nconst nonExistent = input.nonexistent.property; // ❌ Ошибка!\nreturn [\n  {\n    json: {\n      error: \"Мы сломали воркфлоу специально\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a6ff766d-846d-4dcb-ab81-5048cc6fa2df",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "path": "test-error",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "324c4bc5-50a0-464b-aaa6-dc1ec9a56563",
+      "name": "Webhook",
+      "webhookId": "7fea6ed3-386d-4c19-865b-454be4b80be7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "V2f5H6HwDPzn6aUP",
+    "callerPolicy": "workflowsFromSameOwner",
+    "saveExecutionProgress": true
+  },
+  "versionId": "22ab3e52-3bfe-43f8-b867-5dbf143a1fb3",
+  "meta": {
+    "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
+  },
+  "id": "eQI8nsV6sLZZ5kiw",
+  "tags": []
+}

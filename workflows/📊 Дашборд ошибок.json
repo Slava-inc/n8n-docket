@@ -1,0 +1,128 @@
+{
+  "name": "📊 Дашборд ошибок",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "error-dashboard",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "758beddd-ab67-43eb-91ae-5a0c058e3617",
+      "name": "Webhook",
+      "webhookId": "fce7e686-25e9-4124-a10c-d116c630bc64"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n    id,\n    workflow_name,\n    error_message,\n    created_at,\n    execution_id,\n    node_name,\n    CASE \n        WHEN error_stack IS NOT NULL AND error_stack != '' \n        THEN '✅ Есть' \n        ELSE '❌ Нет' \n    END as stack_trace\nFROM error_log \nORDER BY created_at DESC \nLIMIT 100;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ee9b25ec-0c21-41a5-8992-8df4d79995de",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "6n1Frk6yxWgzVIQI",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем данные из PostgreSQL\nconst errors = $input.all();\n\n// Создаем HTML страницу\nconst html = `\n<!DOCTYPE html>\n<html>\n<head>\n    <title>📊 n8n Error Dashboard</title>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n        \n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;\n            background: #f5f5f5;\n            padding: 20px;\n        }\n        \n        .container {\n            max-width: 1400px;\n            margin: 0 auto;\n        }\n        \n        .header {\n            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);\n            color: white;\n            padding: 30px;\n            border-radius: 15px;\n            margin-bottom: 30px;\n            box-shadow: 0 4px 6px rgba(0,0,0,0.1);\n        }\n        \n        .header h1 {\n            font-size: 2.5em;\n            margin-bottom: 10px;\n        }\n        \n        .stats {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n            gap: 20px;\n            margin-bottom: 30px;\n        }\n        \n        .stat-card {\n            background: white;\n            padding: 20px;\n            border-radius: 10px;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n        }\n        \n        .stat-card h3 {\n            color: #666;\n            font-size: 0.9em;\n            text-transform: uppercase;\n            letter-spacing: 1px;\n        }\n        \n        .stat-card .number {\n            font-size: 2em;\n            font-weight: bold;\n            color: #333;\n        }\n        \n        .filters {\n            background: white;\n            padding: 20px;\n            border-radius: 10px;\n            margin-bottom: 20px;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n            display: flex;\n            gap: 15px;\n            flex-wrap: wrap;\n        }\n        \n        .filters input, .filters select {\n            padding: 10px;\n            border: 1px solid #ddd;\n            border-radius: 5px;\n            font-size: 14px;\n            flex: 1;\n            min-width: 200px;\n        }\n        \n        .filters button {\n            padding: 10px 20px;\n            background: #667eea;\n            color: white;\n            border: none;\n            border-radius: 5px;\n            cursor: pointer;\n            font-size: 14px;\n            transition: background 0.3s;\n        }\n        \n        .filters button:hover {\n            background: #5a67d8;\n        }\n        \n        table {\n            width: 100%;\n            background: white;\n            border-radius: 10px;\n            overflow: hidden;\n            box-shadow: 0 2px 4px rgba(0,0,0,0.1);\n            border-collapse: collapse;\n        }\n        \n        th {\n            background: #f8f9fa;\n            padding: 15px;\n            text-align: left;\n            font-weight: 600;\n            color: #555;\n            cursor: pointer;\n            border-bottom: 2px solid #dee2e6;\n        }\n        \n        th:hover {\n            background: #e9ecef;\n        }\n        \n        td {\n            padding: 12px 15px;\n            border-bottom: 1px solid #dee2e6;\n        }\n        \n        tr:hover {\n            background: #f8f9fa;\n        }\n        \n        .error-row {\n            transition: background 0.3s;\n        }\n        \n        .error-message {\n            max-width: 300px;\n            overflow: hidden;\n            text-overflow: ellipsis;\n            white-space: nowrap;\n            color: #dc3545;\n        }\n        \n        .badge {\n            display: inline-block;\n            padding: 3px 8px;\n            border-radius: 3px;\n            font-size: 12px;\n            font-weight: 600;\n        }\n        \n        .badge-success {\n            background: #d4edda;\n            color: #155724;\n        }\n        \n        .badge-danger {\n            background: #f8d7da;\n            color: #721c24;\n        }\n        \n        .timestamp {\n            color: #666;\n            font-size: 13px;\n        }\n        \n        .details-btn {\n            padding: 5px 10px;\n            background: #667eea;\n            color: white;\n            border: none;\n            border-radius: 3px;\n            cursor: pointer;\n            font-size: 12px;\n        }\n        \n        .details-btn:hover {\n            background: #5a67d8;\n        }\n        \n        .pagination {\n            margin-top: 20px;\n            display: flex;\n            justify-content: center;\n            gap: 10px;\n        }\n        \n        .pagination button {\n            padding: 8px 15px;\n            border: 1px solid #ddd;\n            background: white;\n            border-radius: 5px;\n            cursor: pointer;\n        }\n        \n        .pagination button:hover {\n            background: #f0f0f0;\n        }\n        \n        .pagination button.active {\n            background: #667eea;\n            color: white;\n            border-color: #667eea;\n        }\n        \n        @media (max-width: 768px) {\n            .header h1 { font-size: 1.8em; }\n            td, th { padding: 8px; }\n            .error-message { max-width: 150px; }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h1>📊 n8n Error Dashboard</h1>\n            <p>Последние 100 ошибок воркфлоу</p>\n        </div>\n        \n        <div class=\"stats\">\n            <div class=\"stat-card\">\n                <h3>Всего ошибок</h3>\n                <div class=\"number\">${errors.length}</div>\n            </div>\n            <div class=\"stat-card\">\n                <h3>Уникальных воркфлоу</h3>\n                <div class=\"number\">${new Set(errors.map(e => e.json.workflow_name)).size}</div>\n            </div>\n            <div class=\"stat-card\">\n                <h3>Последняя ошибка</h3>\n                <div class=\"number\">${errors[0]?.json.created_at ? new Date(errors[0].json.created_at).toLocaleTimeString() : 'Нет'}</div>\n            </div>\n        </div>\n        \n        <div class=\"filters\">\n            <input type=\"text\" id=\"searchInput\" placeholder=\"🔍 Поиск по сообщению или воркфлоу...\">\n            <select id=\"workflowFilter\">\n                <option value=\"\">Все воркфлоу</option>\n                ${[...new Set(errors.map(e => e.json.workflow_name))].map(name => \n                    `<option value=\"${name}\">${name}</option>`\n                ).join('')}\n            </select>\n            <button onclick=\"applyFilters()\">Применить фильтры</button>\n            <button onclick=\"resetFilters()\">Сбросить</button>\n        </div>\n        \n        <table id=\"errorTable\">\n            <thead>\n                <tr>\n                    <th onclick=\"sortTable(0)\">ID</th>\n                    <th onclick=\"sortTable(1)\">Воркфлоу</th>\n                    <th onclick=\"sortTable(2)\">Сообщение об ошибке</th>\n                    <th onclick=\"sortTable(3)\">Время</th>\n                    <th onclick=\"sortTable(4)\">Execution ID</th>\n                    <th>Stack Trace</th>\n                    <th>Действия</th>\n                </tr>\n            </thead>\n            <tbody id=\"tableBody\">\n                ${errors.map(error => {\n                    const e = error.json;\n                    return `\n                    <tr class=\"error-row\">\n                        <td>${e.id}</td>\n                        <td><strong>${e.workflow_name || 'Неизвестно'}</strong></td>\n                        <td class=\"error-message\" title=\"${e.error_message || ''}\">${e.error_message || 'Нет сообщения'}</td>\n                        <td class=\"timestamp\">${e.created_at ? new Date(e.created_at).toLocaleString() : 'Нет'}</td>\n                        <td>${e.execution_id || '-'}</td>\n                        <td><span class=\"badge ${e.stack_trace === '✅ Есть' ? 'badge-success' : 'badge-danger'}\">${e.stack_trace}</span></td>\n                        <td>\n                            <button class=\"details-btn\" onclick=\"showDetails(${e.id})\">Детали</button>\n                        </td>\n                    </tr>\n                    `;\n                }).join('')}\n            </tbody>\n        </table>\n        \n        <div class=\"pagination\" id=\"pagination\">\n            <button onclick=\"prevPage()\">← Предыдущая</button>\n            <button class=\"active\" onclick=\"goToPage(1)\">1</button>\n            <button onclick=\"nextPage()\">Следующая →</button>\n        </div>\n    </div>\n    \n    <script>\n        let currentPage = 1;\n        const rowsPerPage = 20;\n        let allData = ${JSON.stringify(errors.map(e => e.json))};\n        let filteredData = [...allData];\n        \n        function renderTable() {\n            const start = (currentPage - 1) * rowsPerPage;\n            const end = start + rowsPerPage;\n            const pageData = filteredData.slice(start, end);\n            \n            const tbody = document.getElementById('tableBody');\n            tbody.innerHTML = pageData.map(e => {\n                return \\`\n                <tr class=\"error-row\">\n                    <td>\\${e.id}</td>\n                    <td><strong>\\${e.workflow_name || 'Неизвестно'}</strong></td>\n                    <td class=\"error-message\" title=\"\\${e.error_message || ''}\">\\${e.error_message || 'Нет сообщения'}</td>\n                    <td class=\"timestamp\">\\${e.created_at ? new Date(e.created_at).toLocaleString() : 'Нет'}</td>\n                    <td>\\${e.execution_id || '-'}</td>\n                    <td><span class=\"badge \\${e.stack_trace === '✅ Есть' ? 'badge-success' : 'badge-danger'}\">\\${e.stack_trace}</span></td>\n                    <td>\n                        <button class=\"details-btn\" onclick=\"showDetails(\\${e.id})\">Детали</button>\n                    </td>\n                </tr>\n                \\`;\n            }).join('');\n            \n            updatePagination();\n        }\n        \n        function applyFilters() {\n            const searchTerm = document.getElementById('searchInput').value.toLowerCase();\n            const workflowFilter = document.getElementById('workflowFilter').value;\n            \n            filteredData = allData.filter(e => {\n                const matchesSearch = searchTerm === '' || \n                    (e.error_message && e.error_message.toLowerCase().includes(searchTerm)) ||\n                    (e.workflow_name && e.workflow_name.toLowerCase().includes(searchTerm));\n                    \n                const matchesWorkflow = workflowFilter === '' || e.workflow_name === workflowFilter;\n                \n                return matchesSearch && matchesWorkflow;\n            });\n            \n            currentPage = 1;\n            renderTable();\n        }\n        \n        function resetFilters() {\n            document.getElementById('searchInput').value = '';\n            document.getElementById('workflowFilter').value = '';\n            filteredData = [...allData];\n            currentPage = 1;\n            renderTable();\n        }\n        \n        function sortTable(colIndex) {\n            filteredData.sort((a, b) => {\n                let valA, valB;\n                switch(colIndex) {\n                    case 0: valA = a.id; valB = b.id; break;\n                    case 1: valA = a.workflow_name; valB = b.workflow_name; break;\n                    case 2: valA = a.error_message; valB = b.error_message; break;\n                    case 3: valA = new Date(a.created_at); valB = new Date(b.created_at); break;\n                    case 4: valA = a.execution_id; valB = b.execution_id; break;\n                }\n                if (valA < valB) return -1;\n                if (valA > valB) return 1;\n                return 0;\n            });\n            renderTable();\n        }\n        \n        function showDetails(id) {\n            const error = allData.find(e => e.id === id);\n            if (error) {\n                const details = JSON.stringify(error.full_data || error, null, 2);\n                const win = window.open('', '_blank');\n                win.document.write(\\`\n                    <html>\n                        <head><title>Детали ошибки #\\${id}</title>\n                        <style>\n                            body { font-family: monospace; padding: 20px; background: #f5f5f5; }\n                            pre { background: white; padding: 20px; border-radius: 10px; overflow: auto; }\n                        </style>\n                        </head>\n                        <body>\n                            <h2>Детали ошибки #\\${id}</h2>\n                            <pre>\\${details}</pre>\n                            <button onclick=\"window.close()\">Закрыть</button>\n                        </body>\n                    </html>\n                \\`);\n            }\n        }\n        \n        function updatePagination() {\n            const totalPages = Math.ceil(filteredData.length / rowsPerPage);\n            const pagination = document.getElementById('pagination');\n            let html = '<button onclick=\"prevPage()\">← Предыдущая</button>';\n            \n            for (let i = 1; i <= Math.min(totalPages, 5); i++) {\n                html += \\`<button class=\"\\${currentPage === i ? 'active' : ''}\" onclick=\"goToPage(\\${i})\">\\${i}</button>\\`;\n            }\n            \n            if (totalPages > 5) {\n                html += '<span>...</span>';\n                html += \\`<button onclick=\"goToPage(\\${totalPages})\">\\${totalPages}</button>\\`;\n            }\n            \n            html += '<button onclick=\"nextPage()\">Следующая →</button>';\n            pagination.innerHTML = html;\n        }\n        \n        function prevPage() {\n            if (currentPage > 1) {\n                currentPage--;\n                renderTable();\n            }\n        }\n        \n        function nextPage() {\n            const totalPages = Math.ceil(filteredData.length / rowsPerPage);\n            if (currentPage < totalPages) {\n                currentPage++;\n                renderTable();\n            }\n        }\n        \n        function goToPage(page) {\n            currentPage = page;\n            renderTable();\n        }\n    </script>\n</body>\n</html>\n`;\n\n// Возвращаем HTML страницу\nreturn [{\n    json: {\n        html: html\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "8cc93f9d-cdec-4544-b6ad-894cc6097c3a",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "099d1544-067d-44ce-9189-5067ceeb728c",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3ad71419-e538-4ebe-b4de-2a02d3e0102c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "804cc77d554e39a25accec1fdaae2b795cc04b4e9d1be25967d2eff44b2bb240"
+  },
+  "id": "xi6BWra7ztWdNCDy",
+  "tags": []
+}

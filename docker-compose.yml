@@ -25,9 +25,9 @@ services:
         condition: service_healthy
     environment:
       # ---- Базовые настройки ----
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=password
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
       - N8N_WEBHOOK_URL_ALLOW_LIST=http://localhost:5678,https://localhost:5678    
       - N8N_CUSTOM_EXTENSIONS=/home/node/.n8n/custom-nodes 
       - NODE_ENV=development
@@ -63,10 +63,24 @@ services:
       
       # Миграция storage для будущих версий
       - N8N_MIGRATE_FS_STORAGE_PATH=true
+      # ДОБАВЛЯЕМ настройки HTTPS
+      - N8N_PROTOCOL=https
+      - N8N_SSL_KEY=/certs/localhost-key.pem
+      - N8N_SSL_CERT=/certs/localhost.pem
+      # Обновляем WEBHOOK_URL на https
+      - WEBHOOK_URL=https://localhost:5678/
+      - N8N_HOST=localhost 
+
+      # Новые переменные из .env
+      - EXTERNAL_RUNNER_MODE=${EXTERNAL_RUNNER_MODE}
+      - N8N_OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=${N8N_OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS}
+      - N8N_MIGRATE_FS_STORAGE_PATH=${N8N_MIGRATE_FS_STORAGE_PATH}           
     volumes:
       - ./data:/home/node/.n8n
       - ./files:/home/node/.n8n/files
       - ./custom-nodes:/home/node/.n8n/custom-nodes
+      - ./localhost.pem:/certs/localhost.pem
+      - ./localhost-key.pem:/certs/localhost-key.pem      
     networks:
       - n8n-networks
     restart: unless-stopped  # ПЕРЕМЕЩЕНО сюда, где ему место
@@ -76,6 +90,50 @@ services:
       timeout: 10s
       retries: 3
 
+  n8n-worker:
+    image: n8nio/n8n:latest
+    container_name: n8n-worker
+    restart: unless-stopped
+    networks:
+      - n8n-networks
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Те же переменные окружения, что и у основного n8n
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_USER=${DB_USER:-n8n}
+      - DB_POSTGRESDB_PASSWORD=${DB_PASSWORD:-n8n}
+      - DB_POSTGRESDB_DATABASE=${DB_NAME:-n8n}
+      
+      # Redis для очередей
+      - QUEUE_BULL_REDIS_HOST=redis
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_DB=0
+      
+      # Режим выполнения
+      - EXECUTIONS_MODE=queue
+      
+      # Ключи шифрования (обязательно!)
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_USER_MANAGEMENT_JWT_SECRET=${N8N_USER_MANAGEMENT_JWT_SECRET}
+      
+      # Отключаем веб-интерфейс для воркера
+      - N8N_PORT=5679  # другой порт, чтобы не конфликтовать
+      - N8N_WEBHOOK_URL=${WEBHOOK_URL:-https://localhost:5678/}
+      
+      # Режим воркера
+      - N8N_RUNNERS_ENABLED=true
+    command: worker --concurrency=5  # запускаем как воркер, 5 параллельных задач
+    volumes:
+      # Для доступа к кастомным нодам
+      - ./custom-nodes:/home/node/.n8n/custom-nodes
+    # Нет открытых портов - работает только внутри сети
+    
   postgres:
     # ИСПРАВЛЕНО: было "images:", стало "image:"
     image: postgres:15-alpine
